@@ -2,7 +2,7 @@
 
 -> @xoraus  :)
 
-![Alt Text]https://media.giphy.com/media/UcK7JalnjCz0k/giphy.gif
+![Alt Text](https://media.giphy.com/media/UcK7JalnjCz0k/giphy.gif)
 
 
 1. Problemsheet 01: Introduction to Prolog
