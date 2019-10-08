@@ -1,127 +1,108 @@
-# -*- coding: utf-8 -*-
-from heapq import heappush, heappop
-from random import shuffle
-import time
+import queue as q
+
+def initialize_graph():
+    weighted_graph = {}
+    weighted_graph["a"] =[]
+    weighted_graph["b"] =[]
+    weighted_graph["y"] =[]
+    weighted_graph["d"] =[]
+    weighted_graph["i"] =[]
+    weighted_graph["e"] =[]
+    weighted_graph["k"] =[]
+    weighted_graph["m"] =[]
+    weighted_graph["f"] =[]
+    weighted_graph["j"] =[]
+    
+    weighted_graph["a"].append(("d",3))
+    weighted_graph["d"].append(("a",3))
+    
+    weighted_graph["a"].append(("y",4))
+    weighted_graph["y"].append(("a",4))
+    
+    weighted_graph["b"].append(("y",1))
+    weighted_graph["y"].append(("b",1))
+    
+    weighted_graph["y"].append(("d",2))
+    weighted_graph["d"].append(("y",2))
+    
+    weighted_graph["y"].append(("i",5))
+    weighted_graph["i"].append(("y",5))
+    
+    weighted_graph["i"].append(("d",6))
+    weighted_graph["d"].append(("i",6))
+    
+    weighted_graph["f"].append(("d",3))
+    weighted_graph["d"].append(("f",3))
+    
+    weighted_graph["e"].append(("d",3))
+    weighted_graph["d"].append(("e",3))
+    
+    weighted_graph["f"].append(("e",1.5))
+    weighted_graph["e"].append(("f",1.5))
+    
+    weighted_graph["j"].append(("f",3.5))
+    weighted_graph["f"].append(("j",3.5))
+    
+    weighted_graph["e"].append(("k",2))
+    weighted_graph["k"].append(("e",2))
+    
+    weighted_graph["m"].append(("k",2))
+    weighted_graph["k"].append(("m",2))
+    
+    weighted_graph["k"].append(("j",2.5))
+    weighted_graph["j"].append(("k",2.5))
+    
+    weighted_graph["i"].append(("j",7))
+    weighted_graph["j"].append(("i",7))
+    
+    return weighted_graph
 
 
-class Solver:
-  def __init__(self, initial_state=None):
-    self.initial_state = State(initial_state)
-    self.goal = range(1, 9)
+def initialize_h():
+    h = {}
+    h["a"] = 6
+    h["b"] = 5
+    h["y"] = 4
+    h["d"] = 5
+    h["i"] = 0
+    h["e"] = 6
+    h["k"] = 7
+    h["m"] = 8
+    h["f"] = 5
+    h["j"] = 5
+    return h
 
-  def _rebuildPath(self, end):
-    path = [end]
-    state = end.parent
-    while state.parent:
-      path.append(state)
-      state = state.parent
-    return path
-
-  def solve(self):
-    openset = PriorityQueue()
-    openset.add(self.initial_state)
-    closed = set()
-    moves = 0
-    print '8 Puzzle Problem:'
-    print openset.peek(), '\n\n'
-    start = time.time()
-    while openset:
-      current = openset.poll()
-      if current.values[:-1] == self.goal:
-        end = time.time()
-        print 'Moves in progress'
-        path = self._rebuildPath(current)
-        for state in reversed(path):
-          print state
-          print
-        print 'Resolved %d Moves' % len(path)
-        print 'x %2.f z' % float(end - start)
-        break
-      moves += 1
-      for state in current.possible_moves(moves):
-        if state not in closed:
-          openset.add(state)
-      closed.add(current)
-    else:
-      print 'try again dead nodes'
-
-
-class State:
-  def __init__(self, values, moves=0, parent=None):
-    self.values = values
-    self.moves = moves
-    self.parent = parent
-    self.goal = range(1, 9)
-  
-  def possible_moves(self, moves):
-    i = self.values.index(0)
-    if i in [3, 4, 5, 6, 7, 8]:
-      new_board = self.values[:]
-      new_board[i], new_board[i - 3] = new_board[i - 3], new_board[i]
-      yield State(new_board, moves, self)
-    if i in [1, 2, 4, 5, 7, 8]:
-      new_board = self.values[:]
-      new_board[i], new_board[i - 1] = new_board[i - 1], new_board[i]
-      yield State(new_board, moves, self)
-    if i in [0, 1, 3, 4, 6, 7]:
-      new_board = self.values[:]
-      new_board[i], new_board[i + 1] = new_board[i + 1], new_board[i]
-      yield State(new_board, moves, self)
-    if i in [0, 1, 2, 3, 4, 5]:
-      new_board = self.values[:]
-      new_board[i], new_board[i + 3] = new_board[i + 3], new_board[i]
-      yield State(new_board, moves, self)
-
-  def score(self):
-    return self._h() + self._g()
-
-  def _h(self):
-    return sum([1 if self.values[i] != self.goal[i] else 0 for i in xrange(8)])
-
-  def _g(self):
-    return self.moves
-
-  def __cmp__(self, other):
-    return self.values == other.values
-
-  def __eq__(self, other):
-    return self.__cmp__(other)
-
-  def __hash__(self):
-    return hash(str(self.values))
-
-  def __lt__(self, other):
-    return self.score() < other.score()
-
-  def __str__(self):
-    return '\n'.join([str(self.values[:3]),
-        str(self.values[3:6]),
-        str(self.values[6:9])]).replace('[', '').replace(']', '').replace(',', '').replace('0', 'x')
-
-class PriorityQueue:
-  def __init__(self):
-    self.pq = []
-
-  def add(self, item):
-    heappush(self.pq, item)
-
-  def poll(self):
-    return heappop(self.pq)
-
-  def peek(self):
-    return self.pq[0]
-
-  def remove(self, item):
-    value = self.pq.remove(item)
-    heapify(self.pq)
-    return value is not None
-
-  def __len__(self):
-    return len(self.pq)
+def a_star(graph, first, dest):
+    openList = q.PriorityQueue()
+    h = initialize_h()
+    openList.put((0,[(first, 0)]))
+    closedList = set()
+    while not openList.empty():
+        # shortest available path
+        i, path = openList.get()
+        # openList contains paths with final node unclosedList
+        node = path[-1][0]
+        g_cost = path[-1][1]
+        closedList.add(node)
+        if node == dest:
+            # return only path without cost
+            print("Cost:",path[-1][1])
+            return [x for x, y in path]
+        for neighbor, distance in graph[node]:
+            cumulative_cost = g_cost + distance
+            f_cost = cumulative_cost + h[neighbor]
+            new_path = path + [(neighbor, cumulative_cost)]
+            # add new_path to openList
+            if neighbor not in closedList:
+                openList.put((f_cost, new_path))
+            # update cost of path in openList
+            elif neighbor in openList.queue:
+                openList.put((f_cost,new_path))
+                print(path)
+    return None
 
 
-puzzle = range(9)
-shuffle(puzzle)
-#puzzle = [1, 7, 4, 6, 8, 3, 2, 5, 0]
-solver = Solver(puzzle)
-solver.solve()
+start = "a"
+dest = "i"
+graph = initialize_graph()
+print(a_star(graph, start, dest))
