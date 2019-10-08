@@ -22,3 +22,7 @@
         Umbrella Problem
         
 4. Problemsheet 04: 8 Puzzle Problem using A* Algorithm
+
+5. AO* Algorithm
+
+6. Min-Max Search Trees and Alpha Beta Pruning 
